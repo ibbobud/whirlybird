@@ -103,7 +103,7 @@ export default function AdminPage() {
         onFlightlineSelect={handleFlightlineSelect}
       />
       <main className="ml-64 flex-1 bg-gray-100 min-h-screen p-8">
-        <h1 className="text-2xl font-bold mb-6">Flightline {selectedFlightline} Bays</h1>
+        <h1 className="text-2xl font-bold mb-6">Hangar {selectedFlightline} Bays</h1>
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}

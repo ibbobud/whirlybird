@@ -23,15 +23,16 @@ export default function BayGrid({ bays, onEditBay, onEditUrls }: BayGridProps) {
     urls: []
   });
 
-  // Create array of rows in reverse order for bottom-to-top rendering
-  const rowIndices = Array.from({ length: rows }, (_, i) => rows - 1 - i);
+  // Create array of rows in normal order for top-to-bottom rendering
+  const rowIndices = Array.from({ length: rows }, (_, i) => i);
 
   return (
     <div className="flex flex-col gap-2 p-4 max-w-4xl mx-auto">
       {rowIndices.map((rowIndex) => (
         <div key={rowIndex} className="grid grid-cols-2 gap-4">
           {Array.from({ length: cols }).map((_, colIndex) => {
-            const bayNumber = (rowIndex * 2) + colIndex + 1;
+            // Calculate bay number starting from right (colIndex === 1 is right column)
+            const bayNumber = (rowIndex * 2) + (colIndex === 1 ? 1 : 2);
             const bay = bays.find(b => b.bayNumber === bayNumber) || createEmptyBay(bayNumber, bays[0]?.flightline || 1);
 
             return (

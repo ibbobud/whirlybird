@@ -1,34 +1,31 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-
-const settingsPath = path.join(process.cwd(), 'data', 'settings.json');
+import { NextResponse } from 'next/server'
+import fs from 'fs'
+import path from 'path'
 
 export async function GET() {
   try {
-    const settings = await fs.readFile(settingsPath, 'utf-8');
-    return NextResponse.json(JSON.parse(settings));
+    const settingsPath = path.join(process.cwd(), 'data', 'settings.json')
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'))
+    return NextResponse.json(settings)
   } catch (error) {
-    // If file doesn't exist, return default settings
-    return NextResponse.json({ rotationInterval: 10000 });
+    return NextResponse.json({ error: 'Failed to read settings' }, { status: 500 })
   }
 }
 
-export async function PUT(request: Request) {
+export async function POST(request: Request) {
   try {
-    const settings = await request.json();
+    const body = await request.json()
+    const settingsPath = path.join(process.cwd(), 'data', 'settings.json')
     
-    // Ensure the data directory exists
-    await fs.mkdir(path.join(process.cwd(), 'data'), { recursive: true });
+    const settings = {
+      hangarName: body.hangarName,
+      refreshInterval: body.refreshInterval
+    }
     
-    // Write the settings to file
-    await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2));
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2))
     
-    return NextResponse.json(settings);
+    return NextResponse.json(settings)
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to update settings' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 })
   }
 }

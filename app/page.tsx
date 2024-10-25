@@ -57,7 +57,7 @@ export default async function Home({ searchParams }: Props) {
       return (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-xl">
-            Please provide both bay and flightline numbers in the URL (e.g., /?bay=1&flightline=1)
+            Please provide both bay and hangar numbers in the URL (e.g., /?bay=1&flightline=1)
           </div>
         </div>
       )
@@ -67,7 +67,7 @@ export default async function Home({ searchParams }: Props) {
       return (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-xl">
-            Bay {result.bayNumber} in Flightline {result.flightline} not found
+            Bay {result.bayNumber} in Hangar {result.flightline} not found
           </div>
         </div>
       )

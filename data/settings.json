@@ -1,3 +1,4 @@
 {
-  "rotationInterval": 45000
+  "hangarName": "Main Hangar",
+  "refreshInterval": 30
 }

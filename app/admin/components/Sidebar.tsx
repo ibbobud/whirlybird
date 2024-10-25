@@ -10,27 +10,10 @@ interface SidebarProps {
 
 export default function Sidebar({ selectedFlightline, onFlightlineSelect }: SidebarProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [rotationInterval, setRotationInterval] = useState(10000);
-
-  const handleSaveSettings = async (newInterval: number) => {
-    try {
-      const response = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ rotationInterval: newInterval }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update settings');
-      }
-
-      setRotationInterval(newInterval);
-    } catch (error) {
-      console.error('Error saving settings:', error);
-    }
-  };
+  const [settings, setSettings] = useState({
+    hangarName: 'Main Hangar',
+    refreshInterval: 30
+  });
 
   return (
     <>
@@ -43,28 +26,27 @@ export default function Sidebar({ selectedFlightline, onFlightlineSelect }: Side
             Settings
           </button>
         </div>
-        <h2 className="text-xl font-bold mb-4">Flightlines</h2>
+        <h2 className="text-xl font-bold mb-4">Hangars</h2>
         <div className="space-y-2">
-          {[1, 2, 3, 4].map((flightline) => (
+          {[1, 2, 3].map((hangar) => (
             <button
-              key={flightline}
-              onClick={() => onFlightlineSelect(flightline)}
+              key={hangar}
+              onClick={() => onFlightlineSelect(hangar)}
               className={`w-full text-left py-2 px-4 rounded ${
-                selectedFlightline === flightline
+                selectedFlightline === hangar
                   ? 'bg-blue-600'
                   : 'hover:bg-gray-700'
               }`}
             >
-              Flightline {flightline}
+              Hangar {hangar}
             </button>
           ))}
         </div>
       </aside>
       <SettingsModal
         isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        currentInterval={rotationInterval}
-        onSave={handleSaveSettings}
+        closeModal={() => setIsSettingsOpen(false)}
+        settings={settings}
       />
     </>
   );
