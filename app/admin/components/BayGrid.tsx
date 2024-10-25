@@ -11,8 +11,8 @@ interface BayGridProps {
 }
 
 export default function BayGrid({ bays, onEditBay, onEditUrls }: BayGridProps) {
-  const rows = 2;
-  const cols = 7;
+  const rows = 7; // Changed to 7 rows for 14 bays total
+  const cols = 2;
 
   const createEmptyBay = (bayNumber: number, flightline: number): BayData => ({
     bayNumber,
@@ -23,18 +23,21 @@ export default function BayGrid({ bays, onEditBay, onEditUrls }: BayGridProps) {
     urls: []
   });
 
+  // Create array of rows in reverse order for bottom-to-top rendering
+  const rowIndices = Array.from({ length: rows }, (_, i) => rows - 1 - i);
+
   return (
-    <div className="grid grid-rows-2 gap-4 p-4">
-      {Array.from({ length: rows }).map((_, rowIndex) => (
-        <div key={rowIndex} className="grid grid-cols-7 gap-4">
+    <div className="flex flex-col gap-2 p-4 max-w-4xl mx-auto">
+      {rowIndices.map((rowIndex) => (
+        <div key={rowIndex} className="grid grid-cols-2 gap-4">
           {Array.from({ length: cols }).map((_, colIndex) => {
-            const bayNumber = rowIndex * cols + colIndex + 1;
+            const bayNumber = (rowIndex * 2) + colIndex + 1;
             const bay = bays.find(b => b.bayNumber === bayNumber) || createEmptyBay(bayNumber, bays[0]?.flightline || 1);
 
             return (
               <div
                 key={colIndex}
-                className="bg-white p-4 rounded-lg shadow-md"
+                className="bg-white p-4 rounded-lg shadow-md w-full"
               >
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-bold">Bay {bayNumber}</h3>
