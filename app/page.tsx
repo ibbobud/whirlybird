@@ -32,10 +32,10 @@ async function getBayData(searchParams: Promise<Props['searchParams']>): Promise
   const resolvedParams = await searchParams
   
   const bayParam = resolvedParams?.bay
-  const flightlineParam = resolvedParams?.flightline
+  const hangarParam = resolvedParams?.hangar
   
   const bayNumber = typeof bayParam === 'string' ? parseInt(bayParam, 10) : null
-  const flightline = typeof flightlineParam === 'string' ? parseInt(flightlineParam, 10) : null
+  const flightline = typeof hangarParam === 'string' ? parseInt(hangarParam, 10) : null
 
   if (!bayNumber || !flightline) {
     return { error: 'missing-params' }
@@ -57,7 +57,7 @@ export default async function Home({ searchParams }: Props) {
       return (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-xl">
-            Please provide both bay and hangar numbers in the URL (e.g., /?bay=1&flightline=1)
+            Please provide both bay and hangar numbers in the URL (e.g., /?bay=1&hangar=1)
           </div>
         </div>
       )

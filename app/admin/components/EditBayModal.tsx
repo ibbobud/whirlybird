@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BayData } from '@/app/utils/excel';
+import { BayData } from '../../utils/excel';
 
 interface EditBayModalProps {
   bay: BayData;
@@ -11,9 +11,9 @@ interface EditBayModalProps {
 
 export default function EditBayModal({ bay, onClose, onSave }: EditBayModalProps) {
   const [formData, setFormData] = useState({
-    serialNumber: bay.serialNumber,
-    customerName: bay.customerName,
-    rank: bay.rank.toString()
+    serialNumber: bay.serialNumber || '',
+    customerName: bay.customerName || '',
+    rank: (bay.rank || 0).toString()
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -22,7 +22,8 @@ export default function EditBayModal({ bay, onClose, onSave }: EditBayModalProps
       ...bay,
       serialNumber: formData.serialNumber,
       customerName: formData.customerName,
-      rank: parseInt(formData.rank)
+      rank: parseInt(formData.rank) || 0,
+      urls: Array.isArray(bay.urls) ? bay.urls : [] // Preserve existing URLs array
     });
   };
 
@@ -56,6 +57,7 @@ export default function EditBayModal({ bay, onClose, onSave }: EditBayModalProps
               value={formData.rank}
               onChange={(e) => setFormData({ ...formData, rank: e.target.value })}
               className="w-full p-2 border rounded"
+              min="0"
             />
           </div>
           <div className="flex justify-end space-x-2">

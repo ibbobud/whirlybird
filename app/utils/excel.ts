@@ -11,6 +11,22 @@ export interface BayData {
   urls: string[];
 }
 
+function isValidUrl(url: string): boolean {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function sanitizeUrls(urls: string[]): string[] {
+  if (!Array.isArray(urls)) return [];
+  return urls
+    .map(url => url?.trim())
+    .filter(url => url && isValidUrl(url));
+}
+
 export async function readExcelFile(): Promise<BayData[]> {
   try {
     const filePath = path.join(process.cwd(), 'data', 'bays.xlsx');
@@ -19,14 +35,28 @@ export async function readExcelFile(): Promise<BayData[]> {
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-    return jsonData.map((row: any) => ({
-      bayNumber: parseInt(row['Bay Number']),
-      flightline: parseInt(row['Flightline']),
-      serialNumber: row['Serial Number'],
-      customerName: row['Customer Name'],
-      rank: parseInt(row['Rank']),
-      urls: row['URLs'].split('|')
-    }));
+    return jsonData.map((row: any) => {
+      // Parse URLs with error handling
+      let urls: string[] = [];
+      try {
+        if (row['URLs']) {
+          urls = row['URLs'].split('|')
+            .map((url: string) => url.trim())
+            .filter((url: string) => url && isValidUrl(url));
+        }
+      } catch (error) {
+        console.warn('Error parsing URLs for bay:', row['Bay Number'], error);
+      }
+
+      return {
+        bayNumber: parseInt(row['Bay Number']) || 0,
+        flightline: parseInt(row['Flightline']) || 0,
+        serialNumber: row['Serial Number'] || '',
+        customerName: row['Customer Name'] || '',
+        rank: parseInt(row['Rank']) || 0,
+        urls: urls
+      };
+    });
   } catch (error) {
     console.error('Error reading Excel file:', error);
     throw error;
@@ -35,16 +65,29 @@ export async function readExcelFile(): Promise<BayData[]> {
 
 export async function writeExcelFile(data: BayData[]) {
   try {
-    const worksheet = XLSX.utils.json_to_sheet(
-      data.map(bay => ({
-        'Bay Number': bay.bayNumber,
-        'Flightline': bay.flightline,
-        'Serial Number': bay.serialNumber,
-        'Customer Name': bay.customerName,
-        'Rank': bay.rank,
-        'URLs': bay.urls.join('|')
-      }))
-    );
+    // Validate and sanitize data before writing
+    const sanitizedData = data.map(bay => ({
+      'Bay Number': bay.bayNumber || 0,
+      'Flightline': bay.flightline || 0,
+      'Serial Number': bay.serialNumber || '',
+      'Customer Name': bay.customerName || '',
+      'Rank': bay.rank || 0,
+      'URLs': sanitizeUrls(bay.urls).join('|')
+    }));
+    
+    const worksheet = XLSX.utils.json_to_sheet(sanitizedData);
+    
+    // Set column widths for better readability
+    const colWidths = {
+      'A': 10,  // Bay Number
+      'B': 10,  // Flightline
+      'C': 15,  // Serial Number
+      'D': 20,  // Customer Name
+      'E': 10,  // Rank
+      'F': 50   // URLs
+    };
+    
+    worksheet['!cols'] = Object.values(colWidths).map(width => ({ width }));
     
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Bays');

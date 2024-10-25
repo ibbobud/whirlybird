@@ -10,29 +10,59 @@ interface EditUrlsModalProps {
   onSave: (updatedBay: BayData) => void;
 }
 
+function isValidUrl(url: string) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export default function EditUrlsModal({ bay, onClose, onSave }: EditUrlsModalProps) {
-  const [urls, setUrls] = useState<string[]>(bay.urls || []);
+  const [urls, setUrls] = useState<string[]>(Array.isArray(bay.urls) ? bay.urls : []);
+  const [error, setError] = useState<string | null>(null);
 
   const handleAddUrl = () => {
     setUrls([...urls, '']);
+    setError(null);
   };
 
   const handleRemoveUrl = (index: number) => {
     setUrls(urls.filter((_, i) => i !== index));
+    setError(null);
   };
 
   const handleUrlChange = (index: number, value: string) => {
     const newUrls = [...urls];
     newUrls[index] = value;
     setUrls(newUrls);
+    setError(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Filter out empty URLs and validate format
+    const validUrls = urls
+      .map(url => url.trim())
+      .filter(url => url !== '');
+
+    // Validate URL format
+    const invalidUrls = validUrls.filter(url => !isValidUrl(url));
+    if (invalidUrls.length > 0) {
+      setError('Please enter valid URLs');
+      return;
+    }
+
     // Send all bay data along with updated URLs
     onSave({
-      ...bay,
-      urls: urls.filter(url => url.trim() !== '')
+      bayNumber: bay.bayNumber,
+      flightline: bay.flightline,
+      serialNumber: bay.serialNumber || '',
+      customerName: bay.customerName || '',
+      rank: bay.rank || 0,
+      urls: validUrls
     });
   };
 
@@ -40,6 +70,11 @@ export default function EditUrlsModal({ bay, onClose, onSave }: EditUrlsModalPro
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg w-[600px] max-h-[80vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Edit URLs for Bay {bay.bayNumber}</h2>
+        {error && (
+          <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="space-y-2 mb-4">
             {urls.map((url, index) => (
@@ -49,8 +84,7 @@ export default function EditUrlsModal({ bay, onClose, onSave }: EditUrlsModalPro
                   value={url}
                   onChange={(e) => handleUrlChange(index, e.target.value)}
                   className="flex-1 p-2 border rounded"
-                  placeholder="Enter URL"
-                  required
+                  placeholder="Enter URL (e.g., https://example.com)"
                 />
                 <button
                   type="button"
