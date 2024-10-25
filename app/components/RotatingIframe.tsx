@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface RotatingIframeProps {
   urls: string[];
@@ -9,7 +9,8 @@ interface RotatingIframeProps {
 
 export default function RotatingIframe({ urls, rotationInterval: defaultInterval = 10000 }: RotatingIframeProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [interval, setInterval] = useState(defaultInterval);
+  const [intervalTime, setIntervalTime] = useState(defaultInterval);
+  const timerRef = useRef<ReturnType<typeof setInterval>>();
 
   useEffect(() => {
     // Fetch the current settings
@@ -18,7 +19,9 @@ export default function RotatingIframe({ urls, rotationInterval: defaultInterval
         const response = await fetch('/api/settings');
         if (response.ok) {
           const settings = await response.json();
-          setInterval(settings.rotationInterval);
+          if (settings.rotationInterval) {
+            setIntervalTime(settings.rotationInterval);
+          }
         }
       } catch (error) {
         console.error('Error fetching settings:', error);
@@ -31,12 +34,23 @@ export default function RotatingIframe({ urls, rotationInterval: defaultInterval
   useEffect(() => {
     if (urls.length <= 1) return;
 
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    // Set up new timer with current interval
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % urls.length);
-    }, interval);
+    }, intervalTime);
 
-    return () => clearInterval(timer);
-  }, [urls, interval]);
+    timerRef.current = timer;
+
+    // Cleanup on unmount or when interval/urls change
+    return () => {
+      clearInterval(timer);
+    };
+  }, [urls, intervalTime]);
 
   if (!urls.length) {
     return (
