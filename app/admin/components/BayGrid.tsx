@@ -14,16 +14,16 @@ export default function BayGrid({ bays, onEditBay, onEditUrls }: BayGridProps) {
   const rows = 7;
   const cols = 2;
 
-  const createEmptyBay = (bayNumber: number, flightline: number): BayData => ({
+  const createEmptyBay = (bayNumber: string, hangar: number): BayData => ({
     bayNumber,
-    flightline,
+    hangar,
     serialNumber: '',
     customerName: '',
     rank: 0,
     urls: []
   });
 
-  const getHangarBayNumber = (rowIndex: number, colIndex: number) => {
+  const getHangarBayNumber = (rowIndex: number, colIndex: number): string => {
     if (colIndex === 1) {
       const hangarNumber = Math.floor(rowIndex / 2) * 2 + 1;
       const bayInHangar = (rowIndex % 2) + 1;
@@ -33,12 +33,6 @@ export default function BayGrid({ bays, onEditBay, onEditUrls }: BayGridProps) {
       const bayInHangar = (rowIndex % 2) + 1;
       return `${hangarNumber}-${bayInHangar}`;
     }
-  };
-
-  // Updated to maintain compatibility with original bay numbering
-  const getSequentialBayNumber = (rowIndex: number, colIndex: number) => {
-    // Calculate the bay number based on the original sequential numbering
-    return rowIndex * 2 + colIndex + 1;
   };
 
   // Function to determine if this is the first bay in a hangar pair
@@ -69,23 +63,21 @@ export default function BayGrid({ bays, onEditBay, onEditUrls }: BayGridProps) {
           className={`grid grid-cols-2 gap-4 ${isFirstInHangarPair(rowIndex) ? 'mt-6' : 'mb-6'}`}
         >
           {Array.from({ length: cols }).map((_, colIndex) => {
-            const sequentialBayNumber = getSequentialBayNumber(rowIndex, colIndex);
-            const bay = bays.find(b => b.bayNumber === sequentialBayNumber) || 
-                       createEmptyBay(sequentialBayNumber, bays[0]?.flightline || 1);
-            const displayBayNumber = getHangarBayNumber(rowIndex, colIndex);
-            const isFirstBay = rowIndex % 2 === 0;
+            const bayNumber = getHangarBayNumber(rowIndex, colIndex);
+            const bay = bays.find(b => b.bayNumber === bayNumber) || 
+                       createEmptyBay(bayNumber, Math.floor(parseInt(bayNumber.split('-')[0])));
 
             return (
               <div
                 key={colIndex}
                 className={`
                   bg-white p-4 rounded-lg shadow-md w-full
-                  ${isFirstBay ? 'border-t-4 border-blue-500' : 'border-b-4 border-blue-500'}
-                  ${isFirstBay ? 'rounded-b-none' : 'rounded-t-none'}
+                  ${isFirstInHangarPair(rowIndex) ? 'border-t-4 border-blue-500' : 'border-b-4 border-blue-500'}
+                  ${isFirstInHangarPair(rowIndex) ? 'rounded-b-none' : 'rounded-t-none'}
                 `}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <BayTitle bay={bay} displayBayNumber={displayBayNumber} />
+                  <BayTitle bay={bay} displayBayNumber={bayNumber} />
                   <div className="flex space-x-2">
                     <button
                       onClick={() => onEditBay(bay)}

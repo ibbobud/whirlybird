@@ -55,13 +55,9 @@ export default function EditUrlsModal({ bay, onClose, onSave }: EditUrlsModalPro
       return;
     }
 
-    // Send all bay data along with updated URLs
+    // Preserve all existing bay data and only update the URLs
     onSave({
-      bayNumber: bay.bayNumber,
-      flightline: bay.flightline,
-      serialNumber: bay.serialNumber || '',
-      customerName: bay.customerName || '',
-      rank: bay.rank || 0,
+      ...bay,  // This preserves all existing bay data
       urls: validUrls
     });
   };

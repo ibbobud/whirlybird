@@ -7,7 +7,8 @@ export async function PUT(request: Request) {
         
         // Validate the incoming data
         if (!updatedBay || !updatedBay.bayNumber || !updatedBay.serialNumber || 
-            !updatedBay.customerName || !updatedBay.rank || !updatedBay.flightline) {
+            !updatedBay.customerName || typeof updatedBay.rank !== 'number' || 
+            typeof updatedBay.hangar !== 'number') {
             return NextResponse.json(
                 { error: 'Invalid bay data. Missing required fields.' },
                 { status: 400 }
@@ -17,14 +18,14 @@ export async function PUT(request: Request) {
         // Read current data
         const bays = await readExcelFile();
 
-        // Find and update the bay - now checking both bayNumber AND flightline
+        // Find and update the bay - checking bayNumber AND hangar
         const bayIndex = bays.findIndex(b => 
             b.bayNumber === updatedBay.bayNumber && 
-            b.flightline === updatedBay.flightline
+            b.hangar === updatedBay.hangar
         );
 
         if (bayIndex === -1) {
-            // If bay doesn't exist for this flightline, add it
+            // If bay doesn't exist for this hangar, add it
             bays.push({
                 ...updatedBay,
                 urls: updatedBay.urls || []

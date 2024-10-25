@@ -43,11 +43,11 @@ export default function AdminPage() {
   };
 
   const handleEditBay = (bay: BayData) => {
-    setModal({ type: 'bay', bay: { ...bay, flightline: selectedFlightline } });
+    setModal({ type: 'bay', bay: { ...bay, hangar: selectedFlightline } });
   };
 
   const handleEditUrls = (bay: BayData) => {
-    setModal({ type: 'urls', bay: { ...bay, flightline: selectedFlightline } });
+    setModal({ type: 'urls', bay: { ...bay, hangar: selectedFlightline } });
   };
 
   const handleCloseModal = () => {
@@ -64,7 +64,7 @@ export default function AdminPage() {
         },
         body: JSON.stringify({
           ...updatedBay,
-          flightline: selectedFlightline
+          hangar: selectedFlightline
         }),
       });
 
@@ -86,7 +86,7 @@ export default function AdminPage() {
     }
   };
 
-  const filteredBays = bays.filter(bay => bay.flightline === selectedFlightline);
+  const filteredBays = bays.filter(bay => bay.hangar === selectedFlightline);
 
   if (loading) {
     return (
@@ -119,6 +119,7 @@ export default function AdminPage() {
             bay={modal.bay}
             onClose={handleCloseModal}
             onSave={handleSaveChanges}
+            isOpen={true}
           />
         )}
         {modal.type === 'urls' && modal.bay && (

@@ -3,8 +3,8 @@ import path from 'path';
 import { promises as fs } from 'fs';
 
 export interface BayData {
-  bayNumber: number;
-  flightline: number;
+  bayNumber: string; // Changed to string to store full bay identifier (e.g., "1-1")
+  hangar: number; // Renamed from flightline
   serialNumber: string;
   customerName: string;
   rank: number;
@@ -48,9 +48,12 @@ export async function readExcelFile(): Promise<BayData[]> {
         console.warn('Error parsing URLs for bay:', row['Bay Number'], error);
       }
 
+      // Get the hangar number from the Hangar column (previously Flightline)
+      const hangar = parseInt(row['Hangar']) || 0;
+
       return {
-        bayNumber: parseInt(row['Bay Number']) || 0,
-        flightline: parseInt(row['Flightline']) || 0,
+        bayNumber: row['Bay Number'] || '', // Now storing the full bay identifier
+        hangar, // Using the new hangar field
         serialNumber: row['Serial Number'] || '',
         customerName: row['Customer Name'] || '',
         rank: parseInt(row['Rank']) || 0,
@@ -67,8 +70,8 @@ export async function writeExcelFile(data: BayData[]) {
   try {
     // Validate and sanitize data before writing
     const sanitizedData = data.map(bay => ({
-      'Bay Number': bay.bayNumber || 0,
-      'Flightline': bay.flightline || 0,
+      'Bay Number': bay.bayNumber, // Now writing the full bay identifier
+      'Hangar': bay.hangar, // Renamed from Flightline
       'Serial Number': bay.serialNumber || '',
       'Customer Name': bay.customerName || '',
       'Rank': bay.rank || 0,
@@ -80,7 +83,7 @@ export async function writeExcelFile(data: BayData[]) {
     // Set column widths for better readability
     const colWidths = {
       'A': 10,  // Bay Number
-      'B': 10,  // Flightline
+      'B': 10,  // Hangar
       'C': 15,  // Serial Number
       'D': 20,  // Customer Name
       'E': 10,  // Rank
