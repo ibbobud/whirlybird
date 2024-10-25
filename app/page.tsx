@@ -27,11 +27,12 @@ function Loading() {
   )
 }
 
-async function getBayData(searchParams: Props['searchParams']): Promise<BayResult> {
+async function getBayData(searchParams: Promise<Props['searchParams']>): Promise<BayResult> {
   const bays = await readExcelFile()
+  const resolvedParams = await searchParams
   
-  const bayParam = searchParams?.bay
-  const flightlineParam = searchParams?.flightline
+  const bayParam = resolvedParams?.bay
+  const flightlineParam = resolvedParams?.flightline
   
   const bayNumber = typeof bayParam === 'string' ? parseInt(bayParam, 10) : null
   const flightline = typeof flightlineParam === 'string' ? parseInt(flightlineParam, 10) : null
@@ -49,7 +50,7 @@ async function getBayData(searchParams: Props['searchParams']): Promise<BayResul
 }
 
 export default async function Home({ searchParams }: Props) {
-  const result = await getBayData(searchParams)
+  const result = await getBayData(Promise.resolve(searchParams))
 
   if ('error' in result) {
     if (result.error === 'missing-params') {
