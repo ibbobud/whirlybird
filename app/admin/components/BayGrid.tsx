@@ -11,7 +11,7 @@ interface BayGridProps {
 }
 
 export default function BayGrid({ bays, onEditBay, onEditUrls }: BayGridProps) {
-  const rows = 7; // Changed to 7 rows for 14 bays total
+  const rows = 7;
   const cols = 2;
 
   const createEmptyBay = (bayNumber: number, flightline: number): BayData => ({
@@ -23,25 +23,69 @@ export default function BayGrid({ bays, onEditBay, onEditUrls }: BayGridProps) {
     urls: []
   });
 
+  const getHangarBayNumber = (rowIndex: number, colIndex: number) => {
+    if (colIndex === 1) {
+      const hangarNumber = Math.floor(rowIndex / 2) * 2 + 1;
+      const bayInHangar = (rowIndex % 2) + 1;
+      return `${hangarNumber}-${bayInHangar}`;
+    } else {
+      const hangarNumber = Math.floor(rowIndex / 2) * 2 + 2;
+      const bayInHangar = (rowIndex % 2) + 1;
+      return `${hangarNumber}-${bayInHangar}`;
+    }
+  };
+
+  // Updated to maintain compatibility with original bay numbering
+  const getSequentialBayNumber = (rowIndex: number, colIndex: number) => {
+    // Calculate the bay number based on the original sequential numbering
+    return rowIndex * 2 + colIndex + 1;
+  };
+
+  // Function to determine if this is the first bay in a hangar pair
+  const isFirstInHangarPair = (rowIndex: number) => rowIndex % 2 === 0;
+
+  // Function to render the bay title with styled rank
+  const BayTitle = ({ bay, displayBayNumber }: { bay: BayData, displayBayNumber: string }) => {
+    if (bay.rank > 0) {
+      return (
+        <h3 className="font-bold flex items-center gap-2">
+          <span className="text-blue-600 font-extrabold">Rank {bay.rank}</span>
+          <span>-</span>
+          <span>Bay {displayBayNumber}</span>
+        </h3>
+      );
+    }
+    return <h3 className="font-bold">Bay {displayBayNumber}</h3>;
+  };
+
   // Create array of rows in normal order for top-to-bottom rendering
   const rowIndices = Array.from({ length: rows }, (_, i) => i);
 
   return (
     <div className="flex flex-col gap-2 p-4 max-w-4xl mx-auto">
       {rowIndices.map((rowIndex) => (
-        <div key={rowIndex} className="grid grid-cols-2 gap-4">
+        <div 
+          key={rowIndex} 
+          className={`grid grid-cols-2 gap-4 ${isFirstInHangarPair(rowIndex) ? 'mt-6' : 'mb-6'}`}
+        >
           {Array.from({ length: cols }).map((_, colIndex) => {
-            // Calculate bay number starting from right (colIndex === 1 is right column)
-            const bayNumber = (rowIndex * 2) + (colIndex === 1 ? 1 : 2);
-            const bay = bays.find(b => b.bayNumber === bayNumber) || createEmptyBay(bayNumber, bays[0]?.flightline || 1);
+            const sequentialBayNumber = getSequentialBayNumber(rowIndex, colIndex);
+            const bay = bays.find(b => b.bayNumber === sequentialBayNumber) || 
+                       createEmptyBay(sequentialBayNumber, bays[0]?.flightline || 1);
+            const displayBayNumber = getHangarBayNumber(rowIndex, colIndex);
+            const isFirstBay = rowIndex % 2 === 0;
 
             return (
               <div
                 key={colIndex}
-                className="bg-white p-4 rounded-lg shadow-md w-full"
+                className={`
+                  bg-white p-4 rounded-lg shadow-md w-full
+                  ${isFirstBay ? 'border-t-4 border-blue-500' : 'border-b-4 border-blue-500'}
+                  ${isFirstBay ? 'rounded-b-none' : 'rounded-t-none'}
+                `}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold">Bay {bayNumber}</h3>
+                  <BayTitle bay={bay} displayBayNumber={displayBayNumber} />
                   <div className="flex space-x-2">
                     <button
                       onClick={() => onEditBay(bay)}
