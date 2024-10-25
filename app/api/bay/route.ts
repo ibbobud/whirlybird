@@ -26,10 +26,10 @@ export async function PUT(request: Request) {
             );
         }
 
-        // Update the bay in the array
+        // Update the bay in the array with all fields from updatedBay
         bays[bayIndex] = {
-            ...bays[bayIndex],
-            urls: updatedBay.urls || []
+            ...updatedBay,
+            urls: updatedBay.urls || bays[bayIndex].urls || [] // Preserve existing URLs if not provided
         };
 
         // Write updated data back to file
