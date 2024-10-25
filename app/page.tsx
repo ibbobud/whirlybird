@@ -3,9 +3,21 @@ import Header from './components/Header'
 import { readExcelFile } from './utils/excel'
 import { Suspense } from 'react'
 
-interface PageProps {
+type Props = {
   searchParams: { [key: string]: string | string[] | undefined }
 }
+
+type BayResult = 
+  | { error: 'missing-params' }
+  | { error: 'bay-not-found'; bayNumber: number; flightline: number }
+  | { bay: { 
+      bayNumber: number;
+      flightline: number;
+      rank: number;
+      serialNumber: string;
+      customerName: string;
+      urls: string[];
+    }}
 
 function Loading() {
   return (
@@ -15,50 +27,63 @@ function Loading() {
   )
 }
 
-export default async function Home({ searchParams }: PageProps) {
-  // Read bay data first
+async function getBayData(searchParams: Props['searchParams']): Promise<BayResult> {
   const bays = await readExcelFile()
   
-  // Then handle the search params
-  const bayParam = searchParams.bay
-  const flightlineParam = searchParams.flightline
+  const bayParam = searchParams?.bay
+  const flightlineParam = searchParams?.flightline
   
   const bayNumber = typeof bayParam === 'string' ? parseInt(bayParam, 10) : null
   const flightline = typeof flightlineParam === 'string' ? parseInt(flightlineParam, 10) : null
 
   if (!bayNumber || !flightline) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">
-          Please provide both bay and flightline numbers in the URL (e.g., /?bay=1&flightline=1)
-        </div>
-      </div>
-    )
+    return { error: 'missing-params' }
   }
 
   const bay = bays.find(b => b.bayNumber === bayNumber && b.flightline === flightline)
-
   if (!bay) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">
-          Bay {bayNumber} in Flightline {flightline} not found
+    return { error: 'bay-not-found', bayNumber, flightline }
+  }
+
+  return { bay }
+}
+
+export default async function Home({ searchParams }: Props) {
+  const result = await getBayData(searchParams)
+
+  if ('error' in result) {
+    if (result.error === 'missing-params') {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-xl">
+            Please provide both bay and flightline numbers in the URL (e.g., /?bay=1&flightline=1)
+          </div>
         </div>
-      </div>
-    )
+      )
+    }
+    
+    if (result.error === 'bay-not-found') {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-xl">
+            Bay {result.bayNumber} in Flightline {result.flightline} not found
+          </div>
+        </div>
+      )
+    }
   }
 
   return (
     <main className="flex flex-col h-screen overflow-hidden">
       <Header
-        importanceRank={bay.rank}
-        serialNumber={bay.serialNumber}
-        customerName={bay.customerName}
+        importanceRank={result.bay.rank}
+        serialNumber={result.bay.serialNumber}
+        customerName={result.bay.customerName}
       />
       <div className="flex-1 overflow-hidden">
         <Suspense fallback={<Loading />}>
           <RotatingIframe 
-            urls={bay.urls}
+            urls={result.bay.urls}
             rotationInterval={10000}
           />
         </Suspense>
