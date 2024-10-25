@@ -75,13 +75,13 @@ export default async function Home({ searchParams }: Props) {
   }
 
   return (
-    <main className="flex flex-col h-screen overflow-hidden">
+    <main className="h-screen flex flex-col">
       <Header
         importanceRank={result.bay.rank}
         serialNumber={result.bay.serialNumber}
         customerName={result.bay.customerName}
       />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 pt-20 h-[calc(100vh-5rem)]">
         <Suspense fallback={<Loading />}>
           <RotatingIframe 
             urls={result.bay.urls}
