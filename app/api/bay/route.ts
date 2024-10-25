@@ -17,25 +17,33 @@ export async function PUT(request: Request) {
         // Read current data
         const bays = await readExcelFile();
 
-        // Find and update the bay
-        const bayIndex = bays.findIndex(b => b.bayNumber === updatedBay.bayNumber);
-        if (bayIndex === -1) {
-            return NextResponse.json(
-                { error: `Bay with number ${updatedBay.bayNumber} not found` },
-                { status: 404 }
-            );
-        }
+        // Find and update the bay - now checking both bayNumber AND flightline
+        const bayIndex = bays.findIndex(b => 
+            b.bayNumber === updatedBay.bayNumber && 
+            b.flightline === updatedBay.flightline
+        );
 
-        // Update the bay in the array with all fields from updatedBay
-        bays[bayIndex] = {
-            ...updatedBay,
-            urls: updatedBay.urls || bays[bayIndex].urls || [] // Preserve existing URLs if not provided
-        };
+        if (bayIndex === -1) {
+            // If bay doesn't exist for this flightline, add it
+            bays.push({
+                ...updatedBay,
+                urls: updatedBay.urls || []
+            });
+        } else {
+            // Update existing bay
+            bays[bayIndex] = {
+                ...updatedBay,
+                urls: updatedBay.urls || bays[bayIndex].urls || []
+            };
+        }
 
         // Write updated data back to file
         await writeExcelFile(bays);
 
-        return NextResponse.json({ success: true, bay: bays[bayIndex] });
+        return NextResponse.json({ 
+            success: true, 
+            bay: bayIndex === -1 ? updatedBay : bays[bayIndex] 
+        });
     } catch (error) {
         console.error('Error updating bay:', error);
         return NextResponse.json(
