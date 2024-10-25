@@ -1,8 +1,8 @@
 # Technology Stack
 
 ## Frontend Framework
-- Next.js 14
-- React
+- Next.14
+- Reactjs
 - TypeScript
 
 ## Data Management

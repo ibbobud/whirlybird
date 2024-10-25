@@ -11,6 +11,7 @@ interface SettingsModalProps {
 
 export default function SettingsModal({ isOpen, onClose, currentInterval, onSave }: SettingsModalProps) {
   const [interval, setInterval] = useState(currentInterval);
+  const [baseUrl, setBaseUrl] = useState(''); // Placeholder for future use
 
   if (!isOpen) return null;
 
@@ -38,6 +39,22 @@ export default function SettingsModal({ isOpen, onClose, currentInterval, onSave
               className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Base URL
+            </label>
+            <input
+              type="text"
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value)}
+              placeholder="Coming in future version"
+              disabled
+              className="w-full p-2 border rounded bg-gray-100 text-gray-500 cursor-not-allowed"
+            />
+            <p className="text-xs text-gray-500 mt-1">This feature will be available in a future version</p>
+          </div>
+
           <div className="flex justify-end gap-2">
             <button
               type="button"
