@@ -11,7 +11,6 @@ interface SidebarProps {
 export default function Sidebar({ selectedFlightline, onFlightlineSelect }: SidebarProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settings, setSettings] = useState({
-    hangarName: 'Main Hangar',
     refreshInterval: 30
   });
 

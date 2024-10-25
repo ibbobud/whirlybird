@@ -18,7 +18,6 @@ export async function POST(request: Request) {
     const settingsPath = path.join(process.cwd(), 'data', 'settings.json')
     
     const settings = {
-      hangarName: body.hangarName,
       refreshInterval: body.refreshInterval
     }
     

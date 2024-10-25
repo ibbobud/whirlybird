@@ -12,7 +12,6 @@ interface SettingsModalProps {
 
 export default function SettingsModal({ isOpen, closeModal, settings }: SettingsModalProps) {
   const router = useRouter()
-  const [hangarName, setHangarName] = useState(settings?.hangarName || '')
   const [refreshInterval, setRefreshInterval] = useState(settings?.refreshInterval || 30)
 
   const handleSave = async () => {
@@ -22,7 +21,6 @@ export default function SettingsModal({ isOpen, closeModal, settings }: Settings
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        hangarName,
         refreshInterval,
       }),
     })
@@ -67,17 +65,6 @@ export default function SettingsModal({ isOpen, closeModal, settings }: Settings
                   Settings
                 </Dialog.Title>
                 <div className="mt-2">
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Hangar Name
-                    </label>
-                    <input
-                      type="text"
-                      value={hangarName}
-                      onChange={(e) => setHangarName(e.target.value)}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700">
                       Refresh Interval (seconds)
