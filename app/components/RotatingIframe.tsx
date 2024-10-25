@@ -23,11 +23,19 @@ export default function RotatingIframe({ urls, rotationInterval = 10000 }: Rotat
   if (!urls.length) return null;
 
   return (
-    <iframe
-      src={urls[currentUrlIndex]}
-      className="w-full h-[calc(100vh-4rem)] mt-16 border-0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-    />
+    <div className="w-full h-full overflow-hidden">
+      <iframe
+        src={urls[currentUrlIndex]}
+        className="w-full h-full border-0"
+        style={{
+          overflow: 'hidden',
+          width: '100%',
+          height: '100%'
+        }}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        scrolling="no"
+      />
+    </div>
   );
 }

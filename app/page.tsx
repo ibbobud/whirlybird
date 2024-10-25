@@ -4,7 +4,7 @@ import { readExcelFile } from './utils/excel'
 import { Suspense } from 'react'
 
 interface PageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams: { [key: string]: string | string[] | undefined }
 }
 
 function Loading() {
@@ -19,12 +19,9 @@ export default async function Home({ searchParams }: PageProps) {
   // Read bay data first
   const bays = await readExcelFile()
   
-  // Await the searchParams
-  const params = await searchParams
-  
   // Then handle the search params
-  const bayParam = params.bay
-  const flightlineParam = params.flightline
+  const bayParam = searchParams.bay
+  const flightlineParam = searchParams.flightline
   
   const bayNumber = typeof bayParam === 'string' ? parseInt(bayParam, 10) : null
   const flightline = typeof flightlineParam === 'string' ? parseInt(flightlineParam, 10) : null
@@ -52,13 +49,13 @@ export default async function Home({ searchParams }: PageProps) {
   }
 
   return (
-    <main className="min-h-screen">
+    <main className="flex flex-col h-screen overflow-hidden">
       <Header
         importanceRank={bay.rank}
         serialNumber={bay.serialNumber}
         customerName={bay.customerName}
       />
-      <div className="w-full h-[calc(100vh-4rem)]">
+      <div className="flex-1 overflow-hidden">
         <Suspense fallback={<Loading />}>
           <RotatingIframe 
             urls={bay.urls}
