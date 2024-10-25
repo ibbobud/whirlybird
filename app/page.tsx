@@ -9,10 +9,10 @@ type Props = {
 
 type BayResult = 
   | { error: 'missing-params' }
-  | { error: 'bay-not-found'; bayNumber: number; flightline: number }
+  | { error: 'bay-not-found'; bayNumber: string; hangar: number }
   | { bay: { 
-      bayNumber: number;
-      flightline: number;
+      bayNumber: string;
+      hangar: number;
       rank: number;
       serialNumber: string;
       customerName: string;
@@ -34,16 +34,16 @@ async function getBayData(searchParams: Promise<Props['searchParams']>): Promise
   const bayParam = resolvedParams?.bay
   const hangarParam = resolvedParams?.hangar
   
-  const bayNumber = typeof bayParam === 'string' ? parseInt(bayParam, 10) : null
-  const flightline = typeof hangarParam === 'string' ? parseInt(hangarParam, 10) : null
+  const bayNumber = typeof bayParam === 'string' ? bayParam : null
+  const hangar = typeof hangarParam === 'string' ? parseInt(hangarParam, 10) : null
 
-  if (!bayNumber || !flightline) {
+  if (!bayNumber || !hangar) {
     return { error: 'missing-params' }
   }
 
-  const bay = bays.find(b => b.bayNumber === bayNumber && b.flightline === flightline)
+  const bay = bays.find(b => b.bayNumber === bayNumber && b.hangar === hangar)
   if (!bay) {
-    return { error: 'bay-not-found', bayNumber, flightline }
+    return { error: 'bay-not-found', bayNumber, hangar }
   }
 
   return { bay }
@@ -57,7 +57,7 @@ export default async function Home({ searchParams }: Props) {
       return (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-xl">
-            Please provide both bay and hangar numbers in the URL (e.g., /?bay=1&hangar=1)
+            Please provide both bay and hangar numbers in the URL (e.g., /?bay=2-1&hangar=1)
           </div>
         </div>
       )
@@ -67,7 +67,7 @@ export default async function Home({ searchParams }: Props) {
       return (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-xl">
-            Bay {result.bayNumber} in Hangar {result.flightline} not found
+            Bay {result.bayNumber} in Hangar {result.hangar} not found
           </div>
         </div>
       )
