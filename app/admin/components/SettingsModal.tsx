@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface SettingsModalProps {
@@ -14,20 +14,28 @@ export default function SettingsModal({ isOpen, closeModal, settings }: Settings
   const router = useRouter()
   const [refreshInterval, setRefreshInterval] = useState(settings?.refreshInterval || 30)
 
-  const handleSave = async () => {
-    const response = await fetch('/api/settings', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        refreshInterval,
-      }),
-    })
+  useEffect(() => {
+    setRefreshInterval(settings?.refreshInterval || 30);
+  }, [settings?.refreshInterval]);
 
-    if (response.ok) {
-      router.refresh()
-      closeModal()
+  const handleSave = async () => {
+    try {
+      const response = await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refreshInterval,
+        }),
+      });
+
+      if (response.ok) {
+        router.refresh();
+        closeModal();
+      }
+    } catch (error) {
+      console.error('Error saving settings:', error);
     }
   }
 

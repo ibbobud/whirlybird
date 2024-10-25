@@ -1,18 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SettingsModal from './SettingsModal';
 
 interface SidebarProps {
   selectedFlightline: number;
   onFlightlineSelect: (flightline: number) => void;
+  refreshInterval: number;
 }
 
-export default function Sidebar({ selectedFlightline, onFlightlineSelect }: SidebarProps) {
+export default function Sidebar({ selectedFlightline, onFlightlineSelect, refreshInterval }: SidebarProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [settings, setSettings] = useState({
-    refreshInterval: 30
-  });
 
   return (
     <>
@@ -45,7 +43,7 @@ export default function Sidebar({ selectedFlightline, onFlightlineSelect }: Side
       <SettingsModal
         isOpen={isSettingsOpen}
         closeModal={() => setIsSettingsOpen(false)}
-        settings={settings}
+        settings={{ refreshInterval }}
       />
     </>
   );

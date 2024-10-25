@@ -18,6 +18,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<ModalState>({ type: null, bay: null });
   const [error, setError] = useState<string | null>(null);
+  const [refreshInterval, setRefreshInterval] = useState(30);
 
   const fetchBays = async () => {
     try {
@@ -34,9 +35,27 @@ export default function AdminPage() {
     }
   };
 
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('/api/settings');
+      if (response.ok) {
+        const data = await response.json();
+        setRefreshInterval(data.refreshInterval);
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
+
   useEffect(() => {
     fetchBays();
+    fetchSettings();
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(fetchBays, refreshInterval * 1000);
+    return () => clearInterval(interval);
+  }, [refreshInterval]);
 
   const handleFlightlineSelect = (flightline: number) => {
     setSelectedFlightline(flightline);

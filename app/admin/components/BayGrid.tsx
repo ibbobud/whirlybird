@@ -14,9 +14,9 @@ export default function BayGrid({ bays, onEditBay, onEditUrls }: BayGridProps) {
   const rows = 7;
   const cols = 2;
 
-  const createEmptyBay = (bayNumber: string, hangar: number): BayData => ({
+  const createEmptyBay = (bayNumber: string): BayData => ({
     bayNumber,
-    hangar,
+    hangar: parseInt(bayNumber.split('-')[0]),
     serialNumber: '',
     customerName: '',
     rank: 0,
@@ -65,7 +65,7 @@ export default function BayGrid({ bays, onEditBay, onEditUrls }: BayGridProps) {
           {Array.from({ length: cols }).map((_, colIndex) => {
             const bayNumber = getHangarBayNumber(rowIndex, colIndex);
             const bay = bays.find(b => b.bayNumber === bayNumber) || 
-                       createEmptyBay(bayNumber, Math.floor(parseInt(bayNumber.split('-')[0])));
+                       createEmptyBay(bayNumber);
 
             return (
               <div

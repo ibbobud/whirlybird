@@ -52,8 +52,8 @@ export async function readExcelFile(): Promise<BayData[]> {
       const hangar = parseInt(row['Hangar']) || 0;
 
       return {
-        bayNumber: row['Bay Number'] || '', // Now storing the full bay identifier
-        hangar, // Using the new hangar field
+        bayNumber: row['Bay Number'] || '',
+        hangar,
         serialNumber: row['Serial Number'] || '',
         customerName: row['Customer Name'] || '',
         rank: parseInt(row['Rank']) || 0,
@@ -70,8 +70,8 @@ export async function writeExcelFile(data: BayData[]) {
   try {
     // Validate and sanitize data before writing
     const sanitizedData = data.map(bay => ({
-      'Bay Number': bay.bayNumber, // Now writing the full bay identifier
-      'Hangar': bay.hangar, // Renamed from Flightline
+      'Bay Number': bay.bayNumber,
+      'Hangar': bay.hangar,
       'Serial Number': bay.serialNumber || '',
       'Customer Name': bay.customerName || '',
       'Rank': bay.rank || 0,

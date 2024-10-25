@@ -12,13 +12,25 @@ interface EditBayModalProps {
 
 export default function EditBayModal({ bay, isOpen, onClose, onSave }: EditBayModalProps) {
   const [editedBay, setEditedBay] = useState<BayData>(bay);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     setEditedBay(bay);
+    setError('');
   }, [bay]);
 
   const handleSave = () => {
-    onSave(editedBay);
+    if (editedBay.rank === 0) {
+      setError('Rank must be greater than 0');
+      return;
+    }
+
+    // Ensure hangar is derived from bayNumber
+    const updatedBay = {
+      ...editedBay,
+      hangar: parseInt(editedBay.bayNumber.split('-')[0])
+    };
+    onSave(updatedBay);
     onClose();
   };
 
@@ -50,23 +62,23 @@ export default function EditBayModal({ bay, isOpen, onClose, onSave }: EditBayMo
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Hangar</label>
-          <input
-            type="number"
-            value={editedBay.hangar}
-            onChange={(e) => setEditedBay({ ...editedBay, hangar: parseInt(e.target.value) || 0 })}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Rank</label>
           <input
             type="number"
-            value={editedBay.rank}
-            onChange={(e) => setEditedBay({ ...editedBay, rank: parseInt(e.target.value) || 0 })}
-            className="w-full p-2 border rounded"
+            min="1"
+            value={editedBay.rank || ''}
+            onChange={(e) => {
+              const value = parseInt(e.target.value) || 0;
+              setEditedBay({ ...editedBay, rank: value });
+              if (value === 0) {
+                setError('Rank must be greater than 0');
+              } else {
+                setError('');
+              }
+            }}
+            className={`w-full p-2 border rounded ${error ? 'border-red-500' : ''}`}
           />
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </div>
 
         <div className="flex justify-end gap-2">
@@ -79,6 +91,7 @@ export default function EditBayModal({ bay, isOpen, onClose, onSave }: EditBayMo
           <button
             onClick={handleSave}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            disabled={editedBay.rank === 0}
           >
             Save
           </button>
