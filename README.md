@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Whirlybird
+
+A Next.js application for managing and displaying bay information across multiple hangars. The system supports dynamic URL rotation and administrative controls for bay management.
+
+## Features
+
+- **Bay Information Display**: View detailed bay information including serial numbers and customer details
+- **Dynamic URL Rotation**: Automatically rotate through configured URLs for each bay
+- **Admin Interface**: Manage bay configurations, URLs, and settings
+- **Excel Integration**: Data management through Excel file integration
+- **Responsive Design**: Built with Tailwind CSS for a responsive layout
+
+## Prerequisites
+
+- Node.js 18.x or higher
+- npm or yarn package manager
+- Excel file with bay configuration (placed in `data/bays.xlsx`)
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Run the development server:
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) with your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Viewing Bay Information
+
+Access bay information by navigating to:
+```
+http://localhost:3000/?bay=[bay-number]&hangar=[hangar-number]
+```
+Example: `http://localhost:3000/?bay=2-1&hangar=1`
+
+### Admin Interface
+
+Access the admin interface at `/admin` to:
+- Manage bay configurations
+- Edit URL rotations
+- Update system settings
+- Modify bay rankings
+
+## Project Structure
+
+- `/app` - Main application code
+  - `/admin` - Administrative interface components
+  - `/api` - API routes for data management
+  - `/components` - Reusable React components
+  - `/utils` - Utility functions including Excel operations
+- `/data` - Data storage (Excel files and settings)
+- `/public` - Static assets
+
+## Technology Stack
+
+- [Next.js](https://nextjs.org/) - React framework
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [XLSX](https://www.npmjs.com/package/xlsx) - Excel file operations
+- [Headless UI](https://headlessui.com/) - UI components
+
+## Development
+
+The application uses Next.js 15 with the App Router and React Server Components. Key features include:
+
+- TypeScript for type safety
+- Tailwind CSS for styling
+- Excel file integration for data management
+- Server-side rendering for optimal performance
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+To learn more about the technologies used in this project:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [React Documentation](https://reactjs.org/docs/getting-started.html)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+The application can be deployed using:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm run start
+# or
+yarn build
+yarn start
+```
