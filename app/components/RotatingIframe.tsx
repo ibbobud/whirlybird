@@ -19,8 +19,12 @@ export default function RotatingIframe({ urls, rotationInterval: defaultInterval
         const response = await fetch('/api/settings');
         if (response.ok) {
           const settings = await response.json();
-          if (settings.rotationInterval) {
-            setIntervalTime(settings.rotationInterval);
+          if (settings.refreshInterval) {
+            // Convert from seconds to milliseconds
+            const newInterval = settings.refreshInterval * 1000;
+            if (newInterval !== intervalTime) {
+              setIntervalTime(newInterval);
+            }
           }
         }
       } catch (error) {
@@ -28,8 +32,16 @@ export default function RotatingIframe({ urls, rotationInterval: defaultInterval
       }
     };
 
+    // Initial fetch
     fetchSettings();
-  }, []);
+
+    // Set up polling for settings updates every 5 seconds
+    const settingsPoller = setInterval(fetchSettings, 5000);
+
+    return () => {
+      clearInterval(settingsPoller);
+    };
+  }, [intervalTime]);
 
   useEffect(() => {
     if (urls.length <= 1) return;
