@@ -38,26 +38,32 @@ export async function PUT(request: Request) {
     const buffer = await fs.readFile(filePath);
     const workbook = XLSX.read(buffer);
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    const jsonData = XLSX.utils.sheet_to_json(worksheet) as ExcelBayRow[];
     
-    // Update the matching bay
-    const updatedData = jsonData.map((row) => {
-      const typedRow = row as ExcelBayRow;
-      if (typedRow['Bay Number'] === updatedBay.bayNumber) {
-        return {
-          'Bay Number': updatedBay.bayNumber,
-          'Hangar': updatedBay.hangar,
-          'Serial Number': updatedBay.serialNumber,
-          'Customer Name': updatedBay.customerName,
-          'Rank': updatedBay.rank,
-          'URLs': sanitizeUrls(updatedBay.urls).join('|')
-        };
-      }
-      return typedRow;
-    });
+    // Find if bay exists
+    const existingBayIndex = jsonData.findIndex(
+      row => row['Bay Number'] === updatedBay.bayNumber
+    );
+
+    const newBayData: ExcelBayRow = {
+      'Bay Number': updatedBay.bayNumber,
+      'Hangar': updatedBay.hangar,
+      'Serial Number': updatedBay.serialNumber,
+      'Customer Name': updatedBay.customerName,
+      'Rank': updatedBay.rank,
+      'URLs': sanitizeUrls(updatedBay.urls).join('|')
+    };
+
+    if (existingBayIndex !== -1) {
+      // Update existing bay
+      jsonData[existingBayIndex] = newBayData;
+    } else {
+      // Add new bay
+      jsonData.push(newBayData);
+    }
     
     // Write back to Excel
-    const newWorksheet = XLSX.utils.json_to_sheet(updatedData);
+    const newWorksheet = XLSX.utils.json_to_sheet(jsonData);
     const newWorkbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, 'Bays');
     
