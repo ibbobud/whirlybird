@@ -24,15 +24,15 @@ COPY . .
 RUN npm run build
 
 # Clean up dev dependencies
-RUN npm ci --only=production
+#RUN npm ci --only=production
 
 # Copy standalone output to a new directory
-RUN cp -r .next/standalone/* ./ && \
-    cp -r .next/static .next/static && \
-    cp -r public ./
+#RUN cp -r .next/standalone/* ./ && \
+    #cp -r .next/static .next/static && \
+    #cp -r public ./
 
 # Expose internal port
 EXPOSE 3000
 
 # Command to run the standalone server
-CMD ["node", "server.js"]
+CMD ["npm", "run", "start"]
