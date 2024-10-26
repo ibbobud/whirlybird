@@ -3,10 +3,6 @@ import Header from './components/Header'
 import { readExcelFile } from './utils/excel'
 import { Suspense } from 'react'
 
-type Props = {
-  searchParams: { [key: string]: string | string[] | undefined }
-}
-
 type BayResult = 
   | { error: 'missing-params' }
   | { error: 'bay-not-found'; bayNumber: string; hangar: number }
@@ -27,12 +23,11 @@ function Loading() {
   )
 }
 
-async function getBayData(searchParams: Promise<Props['searchParams']>): Promise<BayResult> {
+async function getBayData(searchParams: Record<string, string | string[] | undefined>): Promise<BayResult> {
   const bays = await readExcelFile()
-  const resolvedParams = await searchParams
   
-  const bayParam = resolvedParams?.bay
-  const hangarParam = resolvedParams?.hangar
+  const bayParam = searchParams?.bay
+  const hangarParam = searchParams?.hangar
   
   const bayNumber = typeof bayParam === 'string' ? bayParam : null
   const hangar = typeof hangarParam === 'string' ? parseInt(hangarParam, 10) : null
@@ -49,8 +44,14 @@ async function getBayData(searchParams: Promise<Props['searchParams']>): Promise
   return { bay }
 }
 
-export default async function Home({ searchParams }: Props) {
-  const result = await getBayData(Promise.resolve(searchParams))
+interface PageProps {
+  params: Promise<Record<string, string>>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+export default async function Page({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams
+  const result = await getBayData(resolvedSearchParams)
 
   if ('error' in result) {
     if (result.error === 'missing-params') {

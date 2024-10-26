@@ -7,7 +7,7 @@ export async function GET() {
     const settingsPath = path.join(process.cwd(), 'data', 'settings.json');
     const settings = await fs.readFile(settingsPath, 'utf8');
     return NextResponse.json(JSON.parse(settings));
-  } catch (error) {
+  } catch {
     return NextResponse.json({ refreshInterval: 30 });
   }
 }
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const settingsPath = path.join(process.cwd(), 'data', 'settings.json');
     await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2));
     return NextResponse.json(settings);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to save settings' }, { status: 500 });
   }
 }

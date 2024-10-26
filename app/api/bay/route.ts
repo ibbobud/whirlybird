@@ -4,6 +4,15 @@ import path from 'path';
 import * as XLSX from 'xlsx';
 import { BayData } from '../../utils/excel';
 
+interface ExcelBayRow {
+  'Bay Number': string;
+  'Hangar': number;
+  'Serial Number': string;
+  'Customer Name': string;
+  'Rank': number;
+  'URLs': string;
+}
+
 function isValidUrl(url: string): boolean {
   try {
     new URL(url);
@@ -32,8 +41,9 @@ export async function PUT(request: Request) {
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     
     // Update the matching bay
-    const updatedData = jsonData.map((row: any) => {
-      if (row['Bay Number'] === updatedBay.bayNumber) {
+    const updatedData = jsonData.map((row) => {
+      const typedRow = row as ExcelBayRow;
+      if (typedRow['Bay Number'] === updatedBay.bayNumber) {
         return {
           'Bay Number': updatedBay.bayNumber,
           'Hangar': updatedBay.hangar,
@@ -43,7 +53,7 @@ export async function PUT(request: Request) {
           'URLs': sanitizeUrls(updatedBay.urls).join('|')
         };
       }
-      return row;
+      return typedRow;
     });
     
     // Write back to Excel

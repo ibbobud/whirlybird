@@ -4,6 +4,15 @@ import path from 'path';
 import * as XLSX from 'xlsx';
 import { BayData } from '../../utils/excel';
 
+interface ExcelBayRow {
+  'Bay Number': string;
+  'Hangar': number;
+  'Serial Number': string;
+  'Customer Name': string;
+  'Rank': number;
+  'URLs': string;
+}
+
 function isValidUrl(url: string): boolean {
   try {
     new URL(url);
@@ -21,28 +30,29 @@ export async function GET() {
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-    const bays: BayData[] = jsonData.map((row: any) => {
+    const bays: BayData[] = jsonData.map((row) => {
+      const typedRow = row as ExcelBayRow;
       // Parse URLs with error handling
       let urls: string[] = [];
       try {
-        if (row['URLs']) {
-          urls = row['URLs'].split('|')
+        if (typedRow['URLs']) {
+          urls = typedRow['URLs'].split('|')
             .map((url: string) => url.trim())
             .filter((url: string) => url && isValidUrl(url));
         }
       } catch (error) {
-        console.warn('Error parsing URLs for bay:', row['Bay Number'], error);
+        console.warn('Error parsing URLs for bay:', typedRow['Bay Number'], error);
       }
 
       // Get the hangar number from the Hangar column (previously Flightline)
-      const hangar = parseInt(row['Hangar']) || 0;
+      const hangar = parseInt(String(typedRow['Hangar'])) || 0;
 
       return {
-        bayNumber: row['Bay Number'] || '',
+        bayNumber: typedRow['Bay Number'] || '',
         hangar,
-        serialNumber: row['Serial Number'] || '',
-        customerName: row['Customer Name'] || '',
-        rank: parseInt(row['Rank']) || 0,
+        serialNumber: typedRow['Serial Number'] || '',
+        customerName: typedRow['Customer Name'] || '',
+        rank: parseInt(String(typedRow['Rank'])) || 0,
         urls: urls
       };
     });

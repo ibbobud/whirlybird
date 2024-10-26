@@ -4,10 +4,14 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
+interface Settings {
+  refreshInterval: number;
+}
+
 interface SettingsModalProps {
   isOpen: boolean;
   closeModal: () => void;
-  settings: any;
+  settings: Settings;
 }
 
 export default function SettingsModal({ isOpen, closeModal, settings }: SettingsModalProps) {

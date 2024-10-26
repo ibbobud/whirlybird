@@ -120,6 +120,7 @@ export default function AdminPage() {
       <Sidebar
         selectedFlightline={selectedFlightline}
         onFlightlineSelect={handleFlightlineSelect}
+        refreshInterval={refreshInterval}
       />
       <main className="ml-64 flex-1 bg-gray-100 min-h-screen p-8">
         <h1 className="text-2xl font-bold mb-6 w-full text-center">Hangar {selectedFlightline} Bays</h1>
